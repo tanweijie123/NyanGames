@@ -46,10 +46,10 @@ public class RollDice {
 
         for (Request req : reqList) {
             int result = calculateReward(req, dice);
-            if (toUpdate.containsKey(req.userId)) {
-                toUpdate.put(req.userId, toUpdate.get(req.userId) + result);
+            if (toUpdate.containsKey(req.getUserId())) {
+                toUpdate.put(req.getUserId(), toUpdate.get(req.getUserId()) + result);
             } else {
-                toUpdate.put(req.userId, result);
+                toUpdate.put(req.getUserId(), result);
             }
         }
 
@@ -79,7 +79,7 @@ public class RollDice {
     }
 
     private static int calculateReward(Request req, int dice) {
-        switch (req.gtype) {
+        switch (req.getGtype()) {
             case 1: return runSolo(req, dice);
             case 2: return runOddEven(req, dice);
             case 3: return runLowHigh(req, dice);
@@ -88,18 +88,18 @@ public class RollDice {
     }
 
     private static int runSolo(Request req, int dice) {
-        return req.gdetail == dice ? Controller.SOLO_RATE * req.amount : 0;
+        return req.getGdetail() == dice ? Controller.SOLO_RATE * req.getAmount() : 0;
     }
 
     private static int runOddEven(Request req, int dice) {
-        return (req.gdetail % 2 == dice % 2) ? Controller.HALF_RATE * req.amount : 0;
+        return (req.getGdetail() % 2 == dice % 2) ? Controller.HALF_RATE * req.getAmount() : 0;
     }
 
     private static int runLowHigh(Request req, int dice) {
-        if (req.gdetail == 2 && dice >= 4) {
-            return Controller.HALF_RATE * req.amount;
-        } else if (req.gdetail == 1 && dice <= 3) {
-            return Controller.HALF_RATE * req.amount;
+        if (req.getGdetail() == 2 && dice >= 4) {
+            return Controller.HALF_RATE * req.getAmount();
+        } else if (req.getGdetail() == 1 && dice <= 3) {
+            return Controller.HALF_RATE * req.getAmount();
         } else {
             return 0;
         }

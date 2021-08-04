@@ -10,6 +10,10 @@ import java.util.List;
 
 public class SQLConn {
 
+    /**
+     * Creates a new database connection.
+     * @return An established SQL connection.
+     */
     static Connection getConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

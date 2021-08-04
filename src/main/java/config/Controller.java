@@ -1,6 +1,6 @@
 package config;
 
-import logic.Dice;
+import model.Dice;
 
 import java.io.File;
 import java.io.FileNotFoundException;
