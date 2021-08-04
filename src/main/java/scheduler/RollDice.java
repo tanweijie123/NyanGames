@@ -7,12 +7,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.internal.utils.tuple.ImmutablePair;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 
-import java.security.SecureRandom;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public class RollDice {
@@ -41,23 +39,23 @@ public class RollDice {
         List<Request> reqList = GamesMethod.getRequests(Controller.acceptingSince);
 
         //roll dice
-        int dice = Controller.dice.roll();
+        int dice = Controller.rollDice();
 
         //calculate
         HashMap<String, Integer> toUpdate = new HashMap<>();
 
         for (Request req : reqList) {
             int result = calculateReward(req, dice);
-            if (toUpdate.containsKey(req.userId)) {
-                toUpdate.put(req.userId, toUpdate.get(req.userId) + result);
+            if (toUpdate.containsKey(req.getUserId())) {
+                toUpdate.put(req.getUserId(), toUpdate.get(req.getUserId()) + result);
             } else {
-                toUpdate.put(req.userId, result);
+                toUpdate.put(req.getUserId(), result);
             }
         }
 
         //distribute
         List<Pair<String, Integer>> toUpdatePair = toUpdate.entrySet().stream().map(x -> ImmutablePair.of(x.getKey(), x.getValue())).collect(Collectors.toList());
-        String result = String.format("Dice rolled: %d \nDice History: %s\nWinners:\n\n %s", dice, Controller.dice.getDiceHistory(), toUpdatePair.stream().filter(x -> x.getRight() > 0)
+        String result = String.format("Dice rolled: %d \nDice History: %s\nWinners:\n\n %s", dice, Controller.getDiceHistory(), toUpdatePair.stream().filter(x -> x.getRight() > 0)
                 .map(x -> jda.getGuildById(guildId).getMemberById(x.getLeft()).getEffectiveName() + " -> " + x.getRight())
                 .collect(Collectors.joining("\n")));
 
@@ -74,14 +72,14 @@ public class RollDice {
         jda.getGuildById(guildId).getTextChannelById(channelId).sendMessage(reply).queue();
 
         if (totalBalance >= Controller.LIMIT) {
-            Controller.eventDateEnd = ZonedDateTime.now(ZoneId.of("GMT+8"));
+            Controller.updateEventEndDate(ZonedDateTime.now(ZoneId.of("GMT+8")));
             jda.getGuildById(guildId).getTextChannelById(channelId).sendMessage("Total Balance Limit has been reached. Event ended.").queue();
         }
 
     }
 
     private static int calculateReward(Request req, int dice) {
-        switch (req.gtype) {
+        switch (req.getGtype()) {
             case 1: return runSolo(req, dice);
             case 2: return runOddEven(req, dice);
             case 3: return runLowHigh(req, dice);
@@ -90,20 +88,22 @@ public class RollDice {
     }
 
     private static int runSolo(Request req, int dice) {
-        return req.gdetail == dice ? Controller.SOLO_RATE * req.amount : 0;
+        int rate = (req.getGdetail() == dice) ? Controller.SOLO_RATE : Controller.LOST_RATE;
+        return rate * req.getAmount();
     }
 
     private static int runOddEven(Request req, int dice) {
-        return (req.gdetail % 2 == dice % 2) ? Controller.HALF_RATE * req.amount : 0;
+        int rate = (req.getGdetail() % 2 == dice % 2) ? Controller.HALF_RATE : Controller.LOST_RATE;
+        return rate * req.getAmount();
     }
 
     private static int runLowHigh(Request req, int dice) {
-        if (req.gdetail == 2 && dice >= 4) {
-            return Controller.HALF_RATE * req.amount;
-        } else if (req.gdetail == 1 && dice <= 3) {
-            return Controller.HALF_RATE * req.amount;
+        if (req.getGdetail() == 2 && dice >= 4) {
+            return Controller.HALF_RATE * req.getAmount();
+        } else if (req.getGdetail() == 1 && dice <= 3) {
+            return Controller.HALF_RATE * req.getAmount();
         } else {
-            return 0;
+            return Controller.LOST_RATE * req.getAmount();
         }
     }
 

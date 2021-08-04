@@ -3,6 +3,9 @@ package db;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ * Contains all the SQL functions required for this program.
+ */
 public class SQLFunctions {
     public static PreparedStatement createUser() throws SQLException, NullPointerException {
         String query = "INSERT INTO Users(uid, bal) VALUES (?, 10)";

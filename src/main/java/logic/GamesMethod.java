@@ -9,11 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains the logic to perform SQL queries.
+ */
 public class GamesMethod {
     public static boolean createUser(String userId) {
         try {
@@ -96,17 +98,17 @@ public class GamesMethod {
     public static boolean insertRequest(Request req) {
         try {
             PreparedStatement stmt = SQLFunctions.insertRequest();
-            stmt.setString(1, req.userId);
-            stmt.setInt(2, req.gtype);
-            stmt.setInt(3, req.gdetail);
-            stmt.setInt(4, req.amount);
+            stmt.setString(1, req.getUserId());
+            stmt.setInt(2, req.getGtype());
+            stmt.setInt(3, req.getGdetail());
+            stmt.setInt(4, req.getAmount());
             int update = stmt.executeUpdate();
             stmt.close();
 
             if (update == 1) {
                 stmt = SQLFunctions.updateBalanceMinus();
-                stmt.setInt(1, req.amount);
-                stmt.setString(2, req.userId);
+                stmt.setInt(1, req.getAmount());
+                stmt.setString(2, req.getUserId());
                 update = stmt.executeUpdate();
             }
 
