@@ -88,11 +88,13 @@ public class RollDice {
     }
 
     private static int runSolo(Request req, int dice) {
-        return req.getGdetail() == dice ? Controller.SOLO_RATE * req.getAmount() : 0;
+        int rate = (req.getGdetail() == dice) ? Controller.SOLO_RATE : Controller.LOST_RATE;
+        return rate * req.getAmount();
     }
 
     private static int runOddEven(Request req, int dice) {
-        return (req.getGdetail() % 2 == dice % 2) ? Controller.HALF_RATE * req.getAmount() : 0;
+        int rate = (req.getGdetail() % 2 == dice % 2) ? Controller.HALF_RATE : Controller.LOST_RATE;
+        return rate * req.getAmount();
     }
 
     private static int runLowHigh(Request req, int dice) {
@@ -101,7 +103,7 @@ public class RollDice {
         } else if (req.getGdetail() == 1 && dice <= 3) {
             return Controller.HALF_RATE * req.getAmount();
         } else {
-            return 0;
+            return Controller.LOST_RATE * req.getAmount();
         }
     }
 

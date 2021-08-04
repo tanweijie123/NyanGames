@@ -9,11 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Contains the logic to perform SQL queries.
+ */
 public class GamesMethod {
     public static boolean createUser(String userId) {
         try {

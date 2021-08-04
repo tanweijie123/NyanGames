@@ -10,11 +10,17 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Scheduler {
+    /**
+     * Initialise game scheduler which activates based on timing.
+     */
     public static void init(JDA jda) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
         minuteTrigger(scheduler, jda);
     }
 
+    /**
+     * Creates a trigger which activates every minute to run RollDice algo.
+     */
     private static void minuteTrigger(ScheduledExecutorService scheduler, JDA jda) {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("GMT+8"));
         ZonedDateTime alarm0 = ZonedDateTime.of(now.getYear(), now.getMonthValue(), now.getDayOfMonth(), now.getHour(), now.getMinute(), 0, 0, ZoneId.of("GMT+8"));
