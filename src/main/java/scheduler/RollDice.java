@@ -7,12 +7,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.internal.utils.tuple.ImmutablePair;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
 
-import java.security.SecureRandom;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
 public class RollDice {
@@ -41,7 +39,7 @@ public class RollDice {
         List<Request> reqList = GamesMethod.getRequests(Controller.acceptingSince);
 
         //roll dice
-        int dice = Controller.dice.roll();
+        int dice = Controller.rollDice();
 
         //calculate
         HashMap<String, Integer> toUpdate = new HashMap<>();
@@ -57,7 +55,7 @@ public class RollDice {
 
         //distribute
         List<Pair<String, Integer>> toUpdatePair = toUpdate.entrySet().stream().map(x -> ImmutablePair.of(x.getKey(), x.getValue())).collect(Collectors.toList());
-        String result = String.format("Dice rolled: %d \nDice History: %s\nWinners:\n\n %s", dice, Controller.dice.getDiceHistory(), toUpdatePair.stream().filter(x -> x.getRight() > 0)
+        String result = String.format("Dice rolled: %d \nDice History: %s\nWinners:\n\n %s", dice, Controller.getDiceHistory(), toUpdatePair.stream().filter(x -> x.getRight() > 0)
                 .map(x -> jda.getGuildById(guildId).getMemberById(x.getLeft()).getEffectiveName() + " -> " + x.getRight())
                 .collect(Collectors.joining("\n")));
 
@@ -74,7 +72,7 @@ public class RollDice {
         jda.getGuildById(guildId).getTextChannelById(channelId).sendMessage(reply).queue();
 
         if (totalBalance >= Controller.LIMIT) {
-            Controller.eventDateEnd = ZonedDateTime.now(ZoneId.of("GMT+8"));
+            Controller.updateEventEndDate(ZonedDateTime.now(ZoneId.of("GMT+8")));
             jda.getGuildById(guildId).getTextChannelById(channelId).sendMessage("Total Balance Limit has been reached. Event ended.").queue();
         }
 
