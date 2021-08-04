@@ -1,3 +1,4 @@
+import config.Controller;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -7,41 +8,55 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import scheduler.Scheduler;
 
-import java.io.File;
-import java.util.Scanner;
+import javax.security.auth.login.LoginException;
+import java.io.FileNotFoundException;
 
 public class App {
     public static void main(String[] args) {
 
-        try {
+        //JDA init
+        JDA jda = null;
 
-            Scanner sc = new Scanner(new File("token"));
-            String token = sc.next();
-            JDA jda = JDABuilder.create(token,
+        try {
+            String token = Controller.getToken();
+            jda = JDABuilder.create(token,
                     GatewayIntent.GUILD_MEMBERS,
                     GatewayIntent.GUILD_MESSAGES,
                     GatewayIntent.GUILD_MESSAGE_REACTIONS,
                     GatewayIntent.GUILD_EMOJIS
             ).build();
 
-
-            CommandListUpdateAction commands = jda.updateCommands();
-            addSlashCommands(commands);
-
-            jda.addEventListener(new SlashCommand());
-            jda.awaitReady();
-
-            //initialise scheduler
-            System.out.println("Initialising scheduler");
-            Scheduler.init(jda);
-            System.out.println("Initialised scheduler");
-
-
-        } catch (Exception e) {
-            System.out.println("Bot Token Failed!");
-            e.printStackTrace();
+        } catch (FileNotFoundException fnf) {
+            System.out.println("Token file not found! Terminating program.");
+            fnf.printStackTrace();
+            return;
+        } catch (IllegalArgumentException iae) {
+            System.out.println("JDA Gateway Intent not specified or unallowed! Terminating program.");
+            iae.printStackTrace();
+            return;
+        } catch (LoginException le) {
+            System.out.println("The provided token is invalid! Terminating program.");
+            le.printStackTrace();
             return;
         }
+
+        //command init
+        CommandListUpdateAction commands = jda.updateCommands();
+        addSlashCommands(commands);
+        jda.addEventListener(new SlashCommand());
+
+        //wait for bot to be ready
+        try {
+            jda.awaitReady();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        //initialise scheduler
+        System.out.println("Initialising scheduler");
+        Scheduler.init(jda);
+        System.out.println("Initialised scheduler");
+
     }
 
     private static void addSlashCommands(CommandListUpdateAction commands) {

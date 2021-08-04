@@ -1,11 +1,12 @@
 package db;
 
-import java.io.File;
+import config.Controller;
+
 import java.io.FileNotFoundException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Scanner;
+import java.util.List;
 
 public class SQLConn {
 
@@ -19,8 +20,8 @@ public class SQLConn {
         Connection conn = null;
 
         try {
-            Scanner scanner = new Scanner(new File("dbtoken"));
-            conn = DriverManager.getConnection(scanner.next(), scanner.next(), scanner.next());
+            List<String> dbtoken = Controller.getDbToken();
+            conn = DriverManager.getConnection(dbtoken.get(0), dbtoken.get(1), dbtoken.get(2));
 
         } catch (FileNotFoundException e) {
             System.err.println("Unable to retrieve dbtoken file");
